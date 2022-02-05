@@ -456,7 +456,7 @@ async def scheduled(wait_for):
                 nfo = False
         
 async def on_startup(_):
-        asyncio.create_task(scheduled(10))
+        asyncio.create_task(scheduled(900))
 
 async def shutdown(dispatcher: Dispatcher):
     await dispatcher.storage.close()
