@@ -1,0 +1,9 @@
+aiogram==2.19
+aioschedule==0.5.2
+beautifulsoup4==4.10.0
+bitlyshortener==0.6.0
+bs4==0.0.1
+fpdf==1.7.2
+pyodbc==4.0.32
+SQLAlchemy==1.4.31
+asyncio==3.4.3
