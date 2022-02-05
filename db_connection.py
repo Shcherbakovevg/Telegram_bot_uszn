@@ -26,13 +26,9 @@ class MsSql():
             return row[0]
 
     #ВОЗВРАЩЕНИЕ СПИСКА СВОБОДНЫХ ПЕРИОДОВ
-    def get_free_periods(self, month, day, JobId):
+    def get_free_periods(self, year, month, day, JobId):
         max_job = self.max_jobs(JobId)
         now = datetime.now ()
-        if int(now.month) == 12 and int(month) == 1:
-            year = now.year + 1
-        else:
-            year = now.year
         periods_list = []
         if int(day) == int(now.day) and int(month) == int(now.month):
             now_time = str(now.hour+1) + ":" + str(now.minute) + ":00"
@@ -49,12 +45,8 @@ class MsSql():
         return periods_list
 
     #РЕЗЕРВИРОВАНИЕ/ОСВОБОЖДЕНИЕ ПЕРИОДА ПОСЛЕ ВЫБОРА ВРЕМЕНИ ПОЛЬЗОВАТЕЛЕМ
-    def rezerv_time(self, month, day, time, JobId, act):
+    def rezerv_time(self, year, month, day, time, JobId, act):
         now = datetime.now ()
-        if int(now.month) == 12 and int(month) == 1:
-            year = now.year + 1
-        else:
-            year = now.year
         if act:
             self.connection.execute ("UPDATE [Qmate].[dbo].[PreliminaryShedule] SET [" + str(JobId) + "_count] = [" + str(JobId) + "_count] + 1 WHERE Year = ? \
                             AND Month = ? AND Day = ? AND Time LIKE ?", (year, month, day, time,))
@@ -63,13 +55,9 @@ class MsSql():
                             AND Month = ? AND Day = ? AND Time LIKE ?", (year, month, day, time,))
 
     #ВОЗВРАЩЕНИЕ СПИСКА СВОБОДНЫХ РАБОЧИХ ДНЕЙ
-    def get_days (self, month, JobId):
+    def get_days (self, year, month, JobId):
         max_job = self.max_jobs(JobId)
         now = datetime.now ()
-        if int(now.month) == 12 and int(month) == 1:
-            year = now.year + 1
-        else:
-            year = now.year
         day_list = set()
         if int(month) == int(now.month):
             per = self.connection.execute ("SELECT Day FROM [Qmate].[dbo].[PreliminaryShedule] WHERE Year = ? AND Month = ? AND Day >= ? AND IsWork = 1 \
@@ -79,7 +67,7 @@ class MsSql():
                                     AND [" + str(JobId) + "_count] < ?", (year, month, max_job))
         for row in per:
             day_list.add(row[0])
-        if not self.get_free_periods(month, now.day, JobId):
+        if not self.get_free_periods(year, month, now.day, JobId):
             try:
                 day_list.remove(int(now.day))
             except:
@@ -101,13 +89,9 @@ class MsSql():
             return row[0]
 
     #ВОЗВРАЩЕНИЕ ПОСЛЕДНЕГО НОМЕРА ЗАПИСИ НА ВЫБРАННЫЙ ДЕНЬ (NONE ЕСЛИ ЗАПИСЕЙ ЕЩЕ НЕ БЫЛО)
-    def get_client_num(self, month, day):
+    def get_client_num(self, year, month, day):
         job_list = [101,102,103,104,105]
         now = datetime.now ()
-        if int(now.month) == 12 and int(month) == 1:
-            year = now.year + 1
-        else:
-            year = now.year
         #start_day = str(year) + '-' + str(day) + '-' +  str(month) + ' 00:00:01.000'
         #fin_day = str(year) + '-' + str(day) + '-' +  str(month) + ' 23:59:59.000'
         start_day = str(year) + '-' + str(month) + '-' +  str(day) + ' 00:00:01.000'
@@ -120,12 +104,8 @@ class MsSql():
                 return 8001
 
     #ВНЕСЕНИЕ В ТАБЛИЦУ ПРЕДВАРИТЕЛЬНОЙ ЗАПИСИ
-    def preliminary_reg(self, OrderId, JobId, month, day, time, name, phone):
+    def preliminary_reg(self, OrderId, JobId, year, month, day, time, name, phone):
         now = datetime.now ()
-        if int(now.month) == 12 and int(month) == 1:
-            year = now.year + 1
-        else:
-            year = now.year
         uid = str(uuid.uuid4())
         now_time = datetime.now()
         #TimeInHold = str(year) + '-' + str(day) + '-' + str(month) + ' ' + time + '.000'
