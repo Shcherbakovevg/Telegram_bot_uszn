@@ -1,18 +1,29 @@
-import parse
+"""Additional functionality: PDF ticket creation, checking input values,\
+   checking new post is exist etc."""
 import re
+
 import logging
 import fpdf
 
+import parse
+
 from db_connection import MsSql
 
-FONTS_PATH = "C:\Windows\Fonts\\"
-FONT_NAME = "arial.ttf"
+
+FONTS_PATH = r"C:\\Windows\\Fonts\\"
+FONT_NAME = r"arial.ttf"
 FONT_SIZE = 14
 fpdf.SYSTEM_TTFONTS = FONTS_PATH
 db = MsSql()
 
-# Создаем PDF с номером в очереди для отправки
-def create_pdf(name, num, cat, date, time):
+def create_pdf(
+    name,
+    num,
+    cat,
+    date,
+    time
+):
+    """Creating PDF file with queue ID"""
     pdf = fpdf.FPDF()
     pdf.add_page()
     pdf.add_font('sysfont', '', FONTS_PATH + FONT_NAME , uni=True)
@@ -50,40 +61,44 @@ file_handler.setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 logger.addHandler(file_handler)
 
-# проверяем наличие нового поста
 def new_post():
+    """Checkin if new posts are exist"""
     try:
         info = parse.parse()
-    except:
+    except EnvironmentError:
         print ("Error. Site can't parse")
         logger.warning("Error. Site can't parse")
-        pass
     try:
         if db.get_post()[0][0] != info['id']:
             new_key = info['id']
             db.upd_post (new_key)
             return info
-        else:
-            return False
-    except:
+        return False
+    except EnvironmentError:
         print ("Error. User DB not avaliable")
         logger.warning("Error. User DB not avaliable")
-# получение ключа словаря по значению
-def get_key(input_dic, value):
-    for k, v in input_dic.items():
-        if v == value:
-            return k        
-# проверка правильности введения имени
+    return None
+
+def get_key(
+    input_dic,
+    data
+):
+    """Get dictionary key by value"""
+    for key, value in input_dic.items():
+        if value == data:
+            return key
+    return None
+
 def valid_name(name):
+    """Check name value is valid"""
     pattern = r"[а-я,А-Я,і,І,ї,Ї,є,Є,',\s,-]+"
     if re.fullmatch (pattern, name):
         return True
-    else:
-        return False
-# проверка правильности введения номера телефона    
+    return False
+
 def valid_phone(phone):
+    """Check phone value is valid"""
     pattern = r"(\+380|380|80|0)\d{9}"
     if re.fullmatch (pattern, phone):
         return True
-    else:
-        return False
+    return False
